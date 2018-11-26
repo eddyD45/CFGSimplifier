@@ -32,14 +32,14 @@ public class ContextFreeGrammar {
         return false;
     }
 
-/*
-    The idea is: Iterate through all strings in the production of a map entry. Suppose, to begin, your production has no
-    non-terminal (considered some upper case character). Check each character in your string. If a character is uppercase,
-    set hasNonTerminal to true and end the iteration of the string there. After iterating through a string, check if has
-    a non terminal. If it does, do nothing and check the next string. If it does not have a non terminal, return the statement
-    with false, meaning this is non a useless production. If it goes through the entire list of strings and finds a non-terminal
-    in each string, then the statement returns true; it is a useless statement and must be removed.
- */
+    /*
+        The idea is: Iterate through all strings in the production of a map entry. Suppose, to begin, your production has no
+        non-terminal (considered some upper case character). Check each character in your string. If a character is uppercase,
+        set hasNonTerminal to true and end the iteration of the string there. After iterating through a string, check if has
+        a non terminal. If it does, do nothing and check the next string. If it does not have a non terminal, return the statement
+        with false, meaning this is non a useless production. If it goes through the entire list of strings and finds a non-terminal
+        in each string, then the statement returns true; it is a useless statement and must be removed.
+     */
     public boolean isUselessProduction(Map.Entry<Character, ArrayList<String>> mapEntry) {
         for (String production : mapEntry.getValue()) {
             boolean hasNonTerminal = false;
@@ -55,6 +55,19 @@ public class ContextFreeGrammar {
         }
         System.out.println("Non terminals found in all strings. Found useless production I must remove.");
         return true;
+    }
+
+    public void removeLambdaProductions(Map<Character, ArrayList<String>> productions) {
+        ArrayList<Character> lambdaEntries = new ArrayList<>();
+        for (Map.Entry<Character, ArrayList<String>> entry : productions.entrySet()) {
+            if (hasLambdaProduction(entry)) {
+                lambdaEntries.add(entry.getKey());
+            }
+        }
+
+        for (Map.Entry<Character, ArrayList<String>> entry : productions.entrySet()) {
+
+        }
     }
 
 }
