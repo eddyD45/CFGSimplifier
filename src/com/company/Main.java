@@ -25,15 +25,14 @@ public class Main {
         System.out.println("Original grammar from exercise 7: " + excercise7Grammar.toString());
 
         System.out.println("REMOVE LAMBDAS");
-        Map<Character, ArrayList<String>> excercise7GrammarWithoutLambda = new HashMap<>(removeLambdaProductions(excercise7Grammar));
+        Map<Character, ArrayList<String>> exercise7GrammarWithoutLambda = new HashMap<>(removeLambdaProductions(excercise7Grammar));
         System.out.println(excercise7Grammar.toString());
-        System.out.println(excercise7GrammarWithoutLambda.toString());
+        System.out.println(exercise7GrammarWithoutLambda.toString());
 
         System.out.println("\nREMOVE VARIABLES");
 
-        for (Map.Entry<Character, ArrayList<String>> entry : excercise7Grammar.entrySet()) {
-            System.out.println(isVariableProduction(entry));
-        }
+        Map<Character, ArrayList<String>> exercise7GrammarWithoutLambdaOrVariables = new HashMap<>(removeVariableProductions(exercise7GrammarWithoutLambda));
+        System.out.println(exercise7GrammarWithoutLambdaOrVariables);
 
         System.out.println("\nREMOVE USELESS PRODUCTIONS");
 
@@ -50,9 +49,8 @@ public class Main {
 
         System.out.println("\nREMOVE VARIABLES");
 
-        for (Map.Entry<Character, ArrayList<String>> entry : exercise10Grammar.entrySet()) {
-            System.out.println(isVariableProduction(entry));
-        }
+        Map<Character, ArrayList<String>> exercise10GrammarWithoutLambdaOrVariables = new HashMap<>(removeVariableProductions(exercise10GrammarWithoutLambda));
+        System.out.println(exercise10GrammarWithoutLambdaOrVariables);
 
         System.out.println("\nREMOVE USELESS PRODUCTIONS");
 
@@ -164,6 +162,35 @@ public class Main {
                 newCFG.put(entry.getKey(), newProductions);
             }
         }
+
+        return newCFG;
+    }
+
+    /*
+
+     */
+    public static Map<Character, ArrayList<String>> removeVariableProductions(Map<Character, ArrayList<String>> productions) {
+        Map<Character, ArrayList<String>> newCFG = new HashMap<>(productions);
+        Map<Character, String> variablesToRemoveFromCFG = new HashMap<>();
+        for (Map.Entry<Character, ArrayList<String>> entry : productions.entrySet()) {
+            if (isVariableProduction(entry)) {
+                //TODO: iterate through the arraylist and find what the variable is. Currently adds a whole arraylist as a string.
+                variablesToRemoveFromCFG.put(entry.getKey(), entry.getValue().toString());
+            }
+        }
+
+        for (Map.Entry<Character, String> entryToRemove : variablesToRemoveFromCFG.entrySet()) {
+            for (Map.Entry<Character, ArrayList<String>> entry : newCFG.entrySet()) {
+                ArrayList<String> newProductions = new ArrayList<>();
+                for (String production : entry.getValue()) {
+//                    newCFG.put(entry.getKey(), production.replace(entryToRemove.getKey().toString(), entryToRemove.getValue()));
+                    System.out.println(entryToRemove.getValue());
+                    newProductions.add(production.replace(entryToRemove.getKey().toString(), entryToRemove.getValue()));
+                }
+                newCFG.put(entry.getKey(), newProductions);
+            }
+        }
+
 
         return newCFG;
     }
