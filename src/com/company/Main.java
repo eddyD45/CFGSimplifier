@@ -16,6 +16,7 @@ public class Main {
         excercise7Grammar.put('C', new ArrayList<>(Arrays.asList("cCD")));
         excercise7Grammar.put('D', new ArrayList<>(Arrays.asList("ddd", "Cd")));
 
+        //grammar from Exercise 10
         Map<Character, ArrayList<String>> exercise10Grammar = new HashMap<>();
         exercise10Grammar.put('S', new ArrayList<>(Arrays.asList("aA", "aBB")));
         exercise10Grammar.put('A', new ArrayList<>(Arrays.asList("aaA", "0")));
@@ -26,37 +27,41 @@ public class Main {
 
         System.out.println("REMOVE LAMBDAS");
         Map<Character, ArrayList<String>> exercise7GrammarWithoutLambda = new HashMap<>(removeLambdaProductions(excercise7Grammar));
-        System.out.println(excercise7Grammar.toString());
-        System.out.println(exercise7GrammarWithoutLambda.toString());
+        System.out.println("Before: " + excercise7Grammar.toString());
+        System.out.println("After: " + exercise7GrammarWithoutLambda.toString());
 
         System.out.println("\nREMOVE VARIABLES");
 
         Map<Character, ArrayList<String>> exercise7GrammarWithoutLambdaOrVariables = new HashMap<>(removeVariableProductions(exercise7GrammarWithoutLambda));
-        System.out.println(exercise7GrammarWithoutLambdaOrVariables);
+        System.out.println("Before: " + exercise7GrammarWithoutLambda);
+        System.out.println("After: " + exercise7GrammarWithoutLambdaOrVariables);
 
         System.out.println("\nREMOVE USELESS PRODUCTIONS");
 
-        for (Map.Entry<Character, ArrayList<String>> entry : excercise7Grammar.entrySet()) {
-            System.out.println(isUselessProduction(entry));
-        }
+        Map<Character, ArrayList<String>> exercise7Simplified = new HashMap<>(removeUselessProductions(exercise7GrammarWithoutLambdaOrVariables));
+        System.out.println("Before: " + exercise7GrammarWithoutLambdaOrVariables);
+        System.out.println("After: " + exercise7Simplified);
+
+        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 
         System.out.println("\nOriginal grammar from exercise 10: " + exercise10Grammar.toString());
 
         System.out.println("REMOVE LAMBDAS");
         Map<Character, ArrayList<String>> exercise10GrammarWithoutLambda = new HashMap<>(removeLambdaProductions(exercise10Grammar));
-        System.out.println(exercise10Grammar.toString());
-        System.out.println(exercise10GrammarWithoutLambda.toString());
+        System.out.println("Before: " + exercise10Grammar.toString());
+        System.out.println("After: " + exercise10GrammarWithoutLambda.toString());
 
         System.out.println("\nREMOVE VARIABLES");
 
         Map<Character, ArrayList<String>> exercise10GrammarWithoutLambdaOrVariables = new HashMap<>(removeVariableProductions(exercise10GrammarWithoutLambda));
-        System.out.println(exercise10GrammarWithoutLambdaOrVariables);
+        System.out.println("Before: " + exercise10GrammarWithoutLambda);
+        System.out.println("After: " + exercise10GrammarWithoutLambdaOrVariables);
 
         System.out.println("\nREMOVE USELESS PRODUCTIONS");
 
-        for (Map.Entry<Character, ArrayList<String>> entry : exercise10Grammar.entrySet()) {
-            System.out.println(isUselessProduction(entry));
-        }
+        Map<Character, ArrayList<String>> exercise10Simplified = new HashMap<>(removeUselessProductions(exercise10GrammarWithoutLambdaOrVariables));
+        System.out.println("Before: " + exercise10GrammarWithoutLambdaOrVariables);
+        System.out.println("After: " + exercise10Simplified);
 
 
     }
@@ -69,7 +74,6 @@ public class Main {
     public static boolean hasLambdaProduction(Map.Entry<Character, ArrayList<String>> mapEntry) {
         for (String production : mapEntry.getValue()) {
             if (production.equals("0")) {
-//                System.out.println("Found lambda I must remove. " + " -> " + mapEntry.toString() );
                 return true;
             }
         }
@@ -85,7 +89,6 @@ public class Main {
         ArrayList<String> productions = mapEntry.getValue();
         for (String production : productions) {
             if (production.length() == 1 && production.matches("[A-Z]")) {
-                System.out.println("Found variable production I must remove.");
                 return true;
             }
         }
@@ -117,7 +120,6 @@ public class Main {
                 return false;
             }
         }
-        System.out.println("Non terminals found in all strings. Found useless production I must remove.");
         return true;
     }
 
@@ -172,10 +174,13 @@ public class Main {
     public static Map<Character, ArrayList<String>> removeVariableProductions(Map<Character, ArrayList<String>> productions) {
         Map<Character, ArrayList<String>> newCFG = new HashMap<>(productions);
         Map<Character, String> variablesToRemoveFromCFG = new HashMap<>();
-        for (Map.Entry<Character, ArrayList<String>> entry : productions.entrySet()) {
+        for (Map.Entry<Character, ArrayList<String>> entry : newCFG.entrySet()) {
             if (isVariableProduction(entry)) {
-                //TODO: iterate through the arraylist and find what the variable is. Currently adds a whole arraylist as a string.
-                variablesToRemoveFromCFG.put(entry.getKey(), entry.getValue().toString());
+                for (String production : entry.getValue()) {
+                    if (production.length() == 1 && production.matches("[A-Z]")) {
+                        variablesToRemoveFromCFG.put(entry.getKey(), production);
+                    }
+                }
             }
         }
 
@@ -184,13 +189,29 @@ public class Main {
                 ArrayList<String> newProductions = new ArrayList<>();
                 for (String production : entry.getValue()) {
 //                    newCFG.put(entry.getKey(), production.replace(entryToRemove.getKey().toString(), entryToRemove.getValue()));
-                    System.out.println(entryToRemove.getValue());
                     newProductions.add(production.replace(entryToRemove.getKey().toString(), entryToRemove.getValue()));
                 }
                 newCFG.put(entry.getKey(), newProductions);
             }
         }
 
+
+        return newCFG;
+    }
+
+    public static Map<Character, ArrayList<String>> removeUselessProductions(Map<Character, ArrayList<String>> productions) {
+        Map<Character, ArrayList<String>> newCFG = new HashMap<>(productions);
+        ArrayList<Character> keysToRemove = new ArrayList<>();
+
+        for (Map.Entry<Character, ArrayList<String>> entry : newCFG.entrySet()) {
+            if (isUselessProduction(entry)) {
+                keysToRemove.add(entry.getKey());
+            }
+        }
+
+        for (Character key : keysToRemove) {
+            newCFG.remove(key);
+        }
 
         return newCFG;
     }
