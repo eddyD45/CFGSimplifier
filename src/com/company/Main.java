@@ -32,7 +32,7 @@ public class Main {
 
         System.out.println("\nREMOVE VARIABLES");
 
-        Map<Character, ArrayList<String>> exercise7GrammarWithoutLambdaOrVariables = new HashMap<>(removeVariableProductions(exercise7GrammarWithoutLambda));
+        Map<Character, ArrayList<String>> exercise7GrammarWithoutLambdaOrVariables = new HashMap<>(removeUnitProductions(exercise7GrammarWithoutLambda));
         System.out.println("Before: " + exercise7GrammarWithoutLambda);
         System.out.println("After: " + exercise7GrammarWithoutLambdaOrVariables);
 
@@ -53,7 +53,7 @@ public class Main {
 
         System.out.println("\nREMOVE VARIABLES");
 
-        Map<Character, ArrayList<String>> exercise10GrammarWithoutLambdaOrVariables = new HashMap<>(removeVariableProductions(exercise10GrammarWithoutLambda));
+        Map<Character, ArrayList<String>> exercise10GrammarWithoutLambdaOrVariables = new HashMap<>(removeUnitProductions(exercise10GrammarWithoutLambda));
         System.out.println("Before: " + exercise10GrammarWithoutLambda);
         System.out.println("After: " + exercise10GrammarWithoutLambdaOrVariables);
 
@@ -142,7 +142,9 @@ public class Main {
                 lambdaEntries.add(entry.getKey());
             }
             for (String production : entry.getValue()) {
-                if (!production.equals("0")) {
+                if (entry.getKey() == 'S') {
+                    nonLambdaProductions.add(production);
+                } else if (!production.equals("0")) {
                     nonLambdaProductions.add(production);
                 }
             }
@@ -169,9 +171,12 @@ public class Main {
     }
 
     /*
+    Find productions that have only one character, and check if they are an upper case Character, indicating they are
+    unit productions. Add that to a map that holds a Character, the key, and a String, the production. We will swap these
+    out later. After finding what keys we're getting rid of, go through and remove them as long as they're not start terminal S.
 
      */
-    public static Map<Character, ArrayList<String>> removeVariableProductions(Map<Character, ArrayList<String>> productions) {
+    public static Map<Character, ArrayList<String>> removeUnitProductions(Map<Character, ArrayList<String>> productions) {
         Map<Character, ArrayList<String>> newCFG = new HashMap<>(productions);
         Map<Character, String> variablesToRemoveFromCFG = new HashMap<>();
         for (Map.Entry<Character, ArrayList<String>> entry : newCFG.entrySet()) {
@@ -184,12 +189,21 @@ public class Main {
             }
         }
 
+        for (Map.Entry<Character, String> entry : variablesToRemoveFromCFG.entrySet()) {
+            if (entry.getKey() != 'S') {
+                newCFG.remove(entry.getKey());
+            }
+        }
+
         for (Map.Entry<Character, String> entryToRemove : variablesToRemoveFromCFG.entrySet()) {
             for (Map.Entry<Character, ArrayList<String>> entry : newCFG.entrySet()) {
                 ArrayList<String> newProductions = new ArrayList<>();
                 for (String production : entry.getValue()) {
-//                    newCFG.put(entry.getKey(), production.replace(entryToRemove.getKey().toString(), entryToRemove.getValue()));
-                    newProductions.add(production.replace(entryToRemove.getKey().toString(), entryToRemove.getValue()));
+                    if (entry.getKey() != 'S') {
+                        newProductions.add(production.replace(entryToRemove.getKey().toString(), entryToRemove.getValue()));
+                    } else {
+                        newProductions.add(production);
+                    }
                 }
                 newCFG.put(entry.getKey(), newProductions);
             }
@@ -199,20 +213,18 @@ public class Main {
         return newCFG;
     }
 
+    /*
+    Go through map entries. If the productions of a given entry do not have a string with lower case characters only, it
+    is considered useless and removed from the CFG.
+     */
     public static Map<Character, ArrayList<String>> removeUselessProductions(Map<Character, ArrayList<String>> productions) {
         Map<Character, ArrayList<String>> newCFG = new HashMap<>(productions);
-        ArrayList<Character> keysToRemove = new ArrayList<>();
 
-        for (Map.Entry<Character, ArrayList<String>> entry : newCFG.entrySet()) {
+        for (Map.Entry<Character, ArrayList<String>> entry : productions.entrySet()) {
             if (isUselessProduction(entry)) {
-                keysToRemove.add(entry.getKey());
+                newCFG.remove(entry.getKey());
             }
         }
-
-        for (Character key : keysToRemove) {
-            newCFG.remove(key);
-        }
-
         return newCFG;
     }
 }
